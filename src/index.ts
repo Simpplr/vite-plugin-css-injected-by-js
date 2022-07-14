@@ -10,9 +10,10 @@ import {
  * @return {Plugin}
  */
 function cssInjectedByJsPlugin(
-    { topExecutionPriority, styleId } = {
+    { topExecutionPriority, styleId, beforeInjectStylesScript } = {
         topExecutionPriority: true,
         styleId: '',
+        beforeInjectStylesScript: '',
     }
 ): Plugin {
     //Globally so we can add it to legacy and non-legacy bundle.
@@ -61,8 +62,10 @@ function cssInjectedByJsPlugin(
                         }
 
                         chunk.code = topCode;
+                        chunk.code += '(function(){ ';
+                        chunk.code += beforeInjectStylesScript;
                         chunk.code +=
-                            "(function(){ try {var elementStyle = document.createElement('style'); elementStyle.appendChild(document.createTextNode(";
+                            "try {var elementStyle = document.createElement('style'); elementStyle.appendChild(document.createTextNode(";
                         chunk.code += JSON.stringify(cssToInject.trim());
                         chunk.code += ')); ';
                         if (typeof styleId == 'string' && styleId.length > 0) {
